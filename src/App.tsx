@@ -1,5 +1,13 @@
+import Hero from "./components/Hero";
+import NavBar from "./components/NavBar";
+
 function App() {
-  return <div>Hi From Here!</div>;
+  return (
+    <main>
+      <NavBar />
+      <Hero />
+    </main>
+  );
 }
 
 export default App;
