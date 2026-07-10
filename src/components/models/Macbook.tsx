@@ -1,6 +1,9 @@
 import * as THREE from "three";
-import { useGLTF } from "@react-three/drei";
+import { useGLTF, useVideoTexture } from "@react-three/drei";
 import type { GLTF } from "three-stdlib";
+import useMacbookStore from "../../store";
+import { useEffect } from "react";
+import { noChangeParts } from "../../constants";
 
 type GLTFResult = GLTF & {
   nodes: {
@@ -49,9 +52,23 @@ type GLTFResult = GLTF & {
 };
 
 export default function MacbookModel(props: JSX.IntrinsicElements["group"]) {
-  const { nodes, materials } = useGLTF(
+  const { color, texture } = useMacbookStore();
+  const { nodes, materials, scene } = useGLTF(
     "/models/macbook-transformed.glb",
   ) as unknown as GLTFResult;
+
+  const screen = useVideoTexture(texture);
+
+  useEffect(() => {
+    scene.traverse((child) => {
+      if (child.isMesh) {
+        if (!noChangeParts.includes(child.name)) {
+          child.material.color = new THREE.Color(color);
+        }
+      }
+    });
+  }, [color, scene]);
+
   return (
     <group {...props} dispose={null}>
       <mesh
@@ -143,7 +160,9 @@ export default function MacbookModel(props: JSX.IntrinsicElements["group"]) {
         geometry={nodes.Object_123.geometry}
         material={materials.sfCQkHOWyrsLmor}
         rotation={[Math.PI / 2, 0, 0]}
-      />
+      >
+        <meshBasicMaterial map={screen} />
+      </mesh>
       <mesh
         geometry={nodes.Object_127.geometry}
         material={materials.ZCDwChwkbBfITSW}
